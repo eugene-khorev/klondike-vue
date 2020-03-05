@@ -1,5 +1,16 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <Temp/>
   </div>
 </template>
+
+<script>
+import Temp from '@/components/Temp.vue'
+
+export default {
+  components: {
+    Temp,
+  }
+}
+</script>
+
