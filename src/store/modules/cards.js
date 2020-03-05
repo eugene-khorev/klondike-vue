@@ -3,7 +3,7 @@ import _ from 'lodash';
 /**
  * Card ranks and suits
  */
-export const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'];
+export const RANKS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'j', 'q', 'k', 'a'];
 export const SUITS = ['spades', 'clubs', 'diams', 'hearts'];
 
 /**
