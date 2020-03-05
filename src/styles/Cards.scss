@@ -4,12 +4,12 @@ $color-downturned-background: #cc9;
 $color-downturned-icon: #987;
 
 $color-hearts: #c00;
-$color-diamonds: $color-hearts; // for accessibility, some French-style decks use blue diamonds
+$color-diamonds: $color-hearts;
 $color-spades: #000;
-$color-clubs: $color-spades; // for accessibility, some French-style decks use green clubs
+$color-clubs: $color-spades;
 
 // how much the corners of the cards are rounded
-$card-corner-round-radius: .3em;
+$card-corner-round-radius: 0.3em;
 
 // characters used for the icons
 // two spaces are necessary after a Unicode character, since these will be concatenated
@@ -23,13 +23,140 @@ $icon-j: "\2658  "; // yeah, the jack looks a little, um, horse-faced
 $icon-joker: "\263A  ";
 $icon-downturned: "\2748  "; // the icon on the back of the card
 
-// Colors and icons
+// colors and icons
 $suits: (
   "spades": ("color": $color-spades, "icon": $icon-spades),
   "clubs": ("color": $color-clubs, "icon": $icon-clubs),
   "diamonds": ("color": $color-diamonds, "icon": $icon-diamonds),
   "hearts": ("color": $color-hearts, "icon": $icon-hearts),
 );
+
+// face parameters
+$ranks: (
+  "2": ("before": ("icons": 2, "width": 60%, "margin-top": -0.5em, "line-height": 2.6em), "after": ("icons": 0) ),
+  "3": ("before": ("icons": 3, "width": 60%), "after": ("icons": 0)),
+  "4": ("before": ("icons": 4, "margin-top": -.5em, "line-height": 2.6em), "after": ("icons": 0)),
+  "5": ("before": ("icons": 4, "margin-top": -.5em, "line-height": 2.6em), "after": ("icons": 1, "line-height": 4em)),
+  "6":("before": ("icons": 6), "after": ("icons": 0)),
+  "7": ("before": ("icons": 6), "after": ("icons": 1, "line-height": 2.7em)),
+  "8": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 0)),
+  "9": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 1, "line-height": 4em)),
+  "10": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 2, "line-height": 2.05em)),
+  "j": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
+  "q": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
+  "k": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
+  "a": ("before": ("icons": 1, "margin-top": 0, "font-size": 4em, "line-height": 1.5em), "after": ("icons": 0)),
+);
+
+.card {
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  width: 5em;
+  height: 7em;
+  margin: 0.3em;
+  background-color: $color-background;
+  font-family: Times, serif;
+  font-weight: bold;
+  border-width: 0.07em;
+  border-style: solid;
+  border-color: #666;
+  border-radius: $card-corner-round-radius;
+  box-shadow: 0.07em 0.07em 0.07em 0.07em rgba(20, 20, 20, 0.4);
+
+  // upper left of card 
+  &:before,
+  &:after {
+    display: block;
+    text-align: center;
+    width: 0.8em;
+    padding: 0.1em 0.2em 0 0.1em;
+    line-height: 1em;
+  }
+
+  // center of card
+  span {
+    display: block;
+    position: absolute;
+    top: 0.1em;
+    bottom: 0;
+    left: 0.8em;
+    right: 0.8em;
+    text-align: center;
+
+    // icons in the left and right columns
+    &:before {
+      display: block;
+      font-size: 1.6em;
+      margin: 0.2em auto;
+    }
+
+    // icons in the center column
+    &:after {
+      position: absolute;
+      top: 0;
+      left: 0.5em;
+      display: block;
+      width: 1em;
+      font-size: 1.6em;
+    }
+  }
+
+  // face down cards
+  &.card-downturned {
+    background-color: $color-downturned-background;
+
+    span {
+      left: 0;
+      right: 0;
+    }
+
+    &:before,
+    &:after,
+    >span:before {
+      opacity: 0;
+    }
+
+    span:after {
+      display: block;
+      top: 0.5em;
+      bottom: 0.5em;
+      left: 0.5em;
+      right: 0.5em;
+      width: auto;
+      background-color: darken($color-downturned-background, 10%);
+      border-radius: $card-corner-round-radius;
+      font-size: 1em;
+      line-height: 5em;
+      text-align: center; // fix for older IE
+      color: $color-downturned-icon;
+      content: $icon-downturned;
+      border: 0.15em dashed saturate($color-downturned-icon, 20%);
+    }
+
+    p {
+      display: none;
+    }
+  }
+
+  // optional accessibility text, e.g. for screen readers
+  p {
+    color: $color-background;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+}
+
+// diamond icons are narrower than the other suits' icons, making the icon columns too close together without this
+.card-diamonds {
+  word-spacing: 0.4em
+}
 
 @each $suit, $params in $suits {
   .card-#{$suit} {
@@ -41,73 +168,52 @@ $suits: (
   }
 }
 
-// Content
-$ranks: (
-  "2": (
-    "before": 2,
-    "after": 0,
-  ),
-  "3": (
-    "before": 3,
-    "after": 0,
-  ),
-  "4": (
-    "before": 4,
-    "after": 0,
-  ),
-  "5": (
-    "before": 4,
-    "after": 1,
-  ),
-  "6":(
-    "before":  6,
-    "after": 0,
-  ),
-  "7": (
-    "before": 6,
-    "after": 1,
-  ),
-  "8": (
-    "before": 8,
-    "after": 0,
-  ),
-  "9": (
-    "before": 8,
-    "after": 1,
-  ),
-  "10": (
-    "before": 8,
-    "after": 2,
-  ),
-  "j": (
-    "before": 1,
-    "after": 0,
-  ),
-  "q": (
-    "before": 1,
-    "after": 0,
-  ),
-  "k": (
-    "before": 1,
-    "after": 0,
-  ),
-  "a": (
-    "before": 1,
-    "after": 0,
-  ),
-);
-@each $rank, $pattern in $ranks {
+@each $rank, $props in $ranks {
+  $props-before: map-get($props, "before");
+  $props-after: map-get($props, "after");
+
+  $margin-top-before: map-get($props-before, "margin-top");
+  $margin-top-after: map-get($props-after, "margin-top");
+
+  $font-size-before: map-get($props-before, "font-size");
+  $font-size-after: map-get($props-after, "font-size");
+
+  $line-height-before: map-get($props-before, "line-height");
+  $line-height-after: map-get($props-after, "line-height");
+
+  $width-before: map-get($props-before, "width");
+  $width-after: map-get($props-after, "width");
+
   .card-#{$rank} {
+    text-transform: capitalize;
+
     &:before {
       content: $rank;
     }
 
+    span {
+      &:before {
+        @if $margin-top-before { margin-top: $margin-top-before; }
+        @if $line-height-before { line-height: $line-height-before; }
+        @if $font-size-before { font-size: $font-size-before; }
+        @if $width-before { width: $width-before; }
+      }
+
+      &:after {
+        @if $margin-top-after { margin-top: $margin-top-after; }
+        @if $font-size-after { font-size: $font-size-after; }
+        @if $line-height-after { line-height: $line-height-after; }
+        @if $width-after { width: $width-after; }
+      }
+    }
+
     @each $suit, $params in $suits {
       &.card-#{$suit} {
-        $before-icon-count: map-get($pattern, "before");
-        @if $before-icon-count > 0 {
+        $before-icon-count: map-get($props-before, "icons");
+
+        @if $before-icon-count>0 {
           $before-icons: "";
-          @while $before-icon-count > 0 {
+          @while $before-icon-count>0 {
             $before-icons: $before-icons + map-get($params, "icon");
             $before-icon-count: $before-icon-count - 1;
           }
@@ -117,14 +223,15 @@ $ranks: (
           }
         }
 
-        $after-icon-count: map-get($pattern, "after");
-        @if $after-icon-count > 0 {
+        $after-icon-count: map-get($props-after, "icons");
+
+        @if $after-icon-count>0 {
           $after-icons: "";
-          @while $after-icon-count > 0 {
+          @while $after-icon-count>0 {
             $after-icons: $after-icons + map-get($params, "icon");
             $after-icon-count: $after-icon-count - 1;
           }
-          
+
           span:after {
             content: $after-icons;
           }
@@ -132,186 +239,4 @@ $ranks: (
       }
     }
   }
-}
-
-.card {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    display: block;
-    position: relative;
-    overflow: hidden;
-    width: 5em;
-    height: 7em;
-    margin: .3em;
-    background-color: $color-background;
-    font-family: Times, serif;
-    font-weight: bold;
-    border-width: .07em; // if you need to support IE<=8, lose the .box-shadow below, and double the thickness of the right and bottom borders to create a fake shadow
-    border-style: solid;
-    border-color: #666;
-    border-radius: $card-corner-round-radius;
-    box-shadow: .07em .07em .07em .07em rgba(20, 20, 20, .4);
-
-    // upper left of card 
-    &:before,
-    &:after {
-        display: block;
-        text-align: center;
-        width: .8em;
-        padding: .1em .2em 0 .1em;
-        line-height: 1em;
-    }
-
-    // center of card
-    span {
-        display: block;
-        position: absolute;
-        top: 0.1em;
-        bottom: 0;
-        left: 0.8em;
-        right: 0.8em;
-        text-align: center;
-
-        // icons in the left and right columns
-        &:before {
-            display: block;
-            font-size: 1.6em;
-            margin: .2em auto;
-        }
-
-        // icons in the center column
-        &:after {
-            position: absolute;
-            top: 0;
-            left: .5em;
-            display: block;
-            width: 1em;
-            font-size: 1.6em;
-        }
-    }
-
-    // face down cards
-    &.card-downturned {
-        background-color: $color-downturned-background;
-
-        &:before,
-        &:after,
-        >span:before {
-            opacity: 0;
-        }
-
-        span:after {
-            display: block;
-            top: .5em;
-            bottom: .5em;
-            left: .5em;
-            right: .5em;
-            width: auto;
-            background-color: darken($color-downturned-background, 10%);
-            border-radius: $card-corner-round-radius;
-            font-size: 1em;
-            line-height: 5em;
-            text-align: center; // fix for older IE
-            color: $color-downturned-icon;
-            content: $icon-downturned;
-            border: .15em dashed saturate($color-downturned-icon, 20%);
-        }
-
-        p {
-            display: none;
-        }
-    }
-
-    // optional accessibility text, e.g. for screen readers
-    p {
-        color: $color-background;
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-size: 1px;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-    }
-}
-
-.card-downturned {
-  span {
-      left: 0;
-      right: 0;
-  }
-}
-
-/* center - font sizes and layout */
-.card-k,
-.card-q,
-.card-j {
-    span:before {
-        font-size: 3em;
-        line-height: 2em;
-    }
-}
-
-.card-a {
-    span:before {
-        font-size: 4em;
-        line-height: 1.5em;
-    }
-}
-
-.card-10,
-.card-9,
-.card-8 {
-    span:before {
-        margin-top: .1em;
-        line-height: 1em;
-    }
-}
-
-.card-5,
-.card-4,
-.card-2 {
-    span:before {
-        margin-top: -.5em;
-        line-height: 2.6em;
-    }
-}
-
-.card-3,
-.card-2 {
-    span:before {
-        width: 60%;
-    }
-}
-
-.card-a {
-    span:before {
-        margin-top: 0;
-    }
-}
-
-// center columns of icons
-.card-10 {
-    span:after {
-        line-height: 2.05em;
-    }
-}
-
-.card-9,
-.card-5 {
-    span:after {
-        line-height: 4em;
-    }
-}
-
-.card-7 {
-    span:after {
-        line-height: 2.7em;
-    }
-}
-
-// diamond icons are narrower than the other suits' icons, making the icon columns too close together without this
-.card-diamonds {
-    word-spacing: .4em
 }

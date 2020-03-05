@@ -54,7 +54,6 @@
       <div class="card card-hearts card-k"><span></span></div>
       <div class="card card-hearts card-a"><span></span></div>
       <div class="card card-hearts card-a card-downturned"><span></span></div>
-      <div class="clear"></div>
     </div>
     
     <h1>Stock</h1>
