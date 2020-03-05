@@ -1,16 +1,27 @@
 <template>
   <div class="about">
-    <Temp/>
+    <CardList type="stock"/>
   </div>
 </template>
 
 <script>
-import Temp from '@/components/Temp.vue'
+import { mapActions } from "vuex";
+import CardList from '@/components/CardList.vue'
 
 export default {
   components: {
-    Temp,
-  }
+    CardList,
+  },
+
+  methods: {
+    ...mapActions("cards", {
+      initGameState: "GenerateInitialState"
+    }),
+  },
+
+  created() {
+    this.initGameState();
+  },
 }
 </script>
 
