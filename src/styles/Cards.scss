@@ -23,29 +23,114 @@ $icon-j: "\2658  "; // yeah, the jack looks a little, um, horse-faced
 $icon-joker: "\263A  ";
 $icon-downturned: "\2748  "; // the icon on the back of the card
 
-$suits: "spades", "clubs", "diamonds", "hearts";
+// Colors and icons
+$suits: (
+  "spades": ("color": $color-spades, "icon": $icon-spades),
+  "clubs": ("color": $color-clubs, "icon": $icon-clubs),
+  "diamonds": ("color": $color-diamonds, "icon": $icon-diamonds),
+  "hearts": ("color": $color-hearts, "icon": $icon-hearts),
+);
 
-// suit colors
-$suit-colors: ("spades": $color-spades, "clubs": $color-clubs, "diamonds": $color-diamonds, "hearts": $color-hearts);
-@each $suit, $icon in $suit-colors {
+@each $suit, $params in $suits {
   .card-#{$suit} {
-    color: $icon;
+    color: map-get($params, "color");
+
+    &:after {
+      content: map-get($params, "icon");
+    }
   }
 }
 
-/* upper left - suit icon */
-$suit-icons: ("spades": $icon-spades, "clubs": $icon-clubs, "diamonds": $icon-diamonds, "hearts": $icon-hearts);
-@each $suit, $icon in $suit-colors {
-  .card-#{$suit}:after {
-    color: $icon;
-  }
-}
+// Content
+$ranks: (
+  "2": (
+    "before": 2,
+    "after": 0,
+  ),
+  "3": (
+    "before": 3,
+    "after": 0,
+  ),
+  "4": (
+    "before": 4,
+    "after": 0,
+  ),
+  "5": (
+    "before": 4,
+    "after": 1,
+  ),
+  "6":(
+    "before":  6,
+    "after": 0,
+  ),
+  "7": (
+    "before": 6,
+    "after": 1,
+  ),
+  "8": (
+    "before": 8,
+    "after": 0,
+  ),
+  "9": (
+    "before": 8,
+    "after": 1,
+  ),
+  "10": (
+    "before": 8,
+    "after": 2,
+  ),
+  "j": (
+    "before": 1,
+    "after": 0,
+  ),
+  "q": (
+    "before": 1,
+    "after": 0,
+  ),
+  "k": (
+    "before": 1,
+    "after": 0,
+  ),
+  "a": (
+    "before": 1,
+    "after": 0,
+  ),
+);
+@each $rank, $pattern in $ranks {
+  .card-#{$rank} {
+    &:before {
+      content: $rank;
+    }
 
-// upper-left
-$ranks: ("2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a");
-@each $rank in $ranks {
-  .card-#{$rank}:before {
-    content: $rank;
+    @each $suit, $params in $suits {
+      &.card-#{$suit} {
+        $before-icon-count: map-get($pattern, "before");
+        @if $before-icon-count > 0 {
+          $before-icons: "";
+          @while $before-icon-count > 0 {
+            $before-icons: $before-icons + map-get($params, "icon");
+            $before-icon-count: $before-icon-count - 1;
+          }
+
+          span:before {
+            content: $before-icons;
+          }
+        }
+
+        $after-icon-count: map-get($pattern, "after");
+        @if $after-icon-count > 0 {
+          $after-icons: "";
+          @while $after-icon-count > 0 {
+            $after-icons: $after-icons + map-get($params, "icon");
+            $after-icon-count: $after-icon-count - 1;
+          }
+          
+          span:after {
+            content: $after-icons;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -151,6 +236,13 @@ $ranks: ("2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a");
     }
 }
 
+.card-downturned {
+  span {
+      left: 0;
+      right: 0;
+  }
+}
+
 /* center - font sizes and layout */
 .card-k,
 .card-q,
@@ -199,13 +291,6 @@ $ranks: ("2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a");
     }
 }
 
-.card-downturned {
-    span {
-        left: 0;
-        right: 0;
-    }
-}
-
 // center columns of icons
 .card-10 {
     span:after {
@@ -229,193 +314,4 @@ $ranks: ("2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a");
 // diamond icons are narrower than the other suits' icons, making the icon columns too close together without this
 .card-diamonds {
     word-spacing: .4em
-}
-
-/* center - suit icons */
-.card-k span:before {
-    content: "#{$icon-k}"
-}
-
-.card-q span:before {
-    content: "#{$icon-q}"
-}
-
-.card-j span:before {
-    content: "#{$icon-j}"
-}
-
-.card-10.card-hearts span:after {
-    content: "#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-9.card-hearts span:after {
-    content: "#{$icon-hearts}";
-}
-
-.card-10.card-hearts span:before,
-.card-9.card-hearts span:before,
-.card-8.card-hearts span:before {
-    content: "#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-7.card-hearts span:after {
-    content: "#{$icon-hearts}";
-}
-
-.card-7.card-hearts span:before,
-.card-6.card-hearts span:before {
-    content: "#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-5.card-hearts span:after {
-    content: "#{$icon-hearts}";
-}
-
-.card-5.card-hearts span:before,
-.card-4.card-hearts span:before {
-    content: "#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-3.card-hearts span:before {
-    content: "#{$icon-hearts}#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-2.card-hearts span:before {
-    content: "#{$icon-hearts}#{$icon-hearts}";
-}
-
-.card-a.card-hearts span:before {
-    content: "#{$icon-hearts}"
-}
-
-.card-10.card-diamonds span:after {
-    content: "#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-9.card-diamonds span:after {
-    content: "#{$icon-diamonds}";
-}
-
-.card-10.card-diamonds span:before,
-.card-9.card-diamonds span:before,
-.card-8.card-diamonds span:before {
-    content: "#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-7.card-diamonds span:after {
-    content: "#{$icon-diamonds}";
-}
-
-.card-7.card-diamonds span:before,
-.card-6.card-diamonds span:before {
-    content: "#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-5.card-diamonds span:after {
-    content: "#{$icon-diamonds}";
-}
-
-.card-5.card-diamonds span:before,
-.card-4.card-diamonds span:before {
-    content: "#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-3.card-diamonds span:before {
-    content: "#{$icon-diamonds}#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-2.card-diamonds span:before {
-    content: "#{$icon-diamonds}#{$icon-diamonds}";
-}
-
-.card-a.card-diamonds span:before {
-    content: "#{$icon-diamonds}"
-}
-
-.card-10.card-clubs span:after {
-    content: "#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-9.card-clubs span:after {
-    content: "#{$icon-clubs}";
-}
-
-.card-10.card-clubs span:before,
-.card-9.card-clubs span:before,
-.card-8.card-clubs span:before {
-    content: "#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-7.card-clubs span:after {
-    content: "#{$icon-clubs}";
-}
-
-.card-7.card-clubs span:before,
-.card-6.card-clubs span:before {
-    content: "#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-5.card-clubs span:after {
-    content: "#{$icon-clubs}";
-}
-
-.card-5.card-clubs span:before,
-.card-4.card-clubs span:before {
-    content: "#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-3.card-clubs span:before {
-    content: "#{$icon-clubs}#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-2.card-clubs span:before {
-    content: "#{$icon-clubs}#{$icon-clubs}";
-}
-
-.card-a.card-clubs span:before {
-    content: "#{$icon-clubs}"
-}
-
-.card-10.card-spades span:after {
-    content: "#{$icon-spades}#{$icon-spades}";
-}
-
-.card-9.card-spades span:after {
-    content: "#{$icon-spades}";
-}
-
-.card-10.card-spades span:before,
-.card-9.card-spades span:before,
-.card-8.card-spades span:before {
-    content: "#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}";
-}
-
-.card-7.card-spades span:after {
-    content: "#{$icon-spades}";
-}
-
-.card-7.card-spades span:before,
-.card-6.card-spades span:before {
-    content: "#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}";
-}
-
-.card-5.card-spades span:after {
-    content: "#{$icon-spades}";
-}
-
-.card-5.card-spades span:before,
-.card-4.card-spades span:before {
-    content: "#{$icon-spades}#{$icon-spades}#{$icon-spades}#{$icon-spades}";
-}
-
-.card-3.card-spades span:before {
-    content: "#{$icon-spades}#{$icon-spades}#{$icon-spades}";
-}
-
-.card-2.card-spades span:before {
-    content: "#{$icon-spades}#{$icon-spades}";
-}
-
-.card-a.card-spades span:before {
-    content: "#{$icon-spades}";
 }
