@@ -1,0 +1,21 @@
+@import 'Cards';
+
+.pile-area {
+  display: flex;
+  flex-wrap: nowrap;
+
+  .pile {
+    position: relative;
+    width: $card-width + $card-margin * 2;
+
+    .card {
+      position: absolute;
+
+      @for $index from 0 through 20 {
+        &:nth-child(#{$index - 1}) {
+          top: $index * 2px;
+        }
+      }
+    }
+  }
+}

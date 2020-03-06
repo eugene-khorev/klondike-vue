@@ -10,6 +10,7 @@ export const SUITS = ['spades', 'clubs', 'diamonds', 'hearts'];
  * Mutations
  */
 export const MUTATION_SET_INITIAL_STATE = 'MUTATION_SET_INITIAL_STATE';
+export const MUTATION_SET_UPTURNED_INDEX = 'MUTATION_SET_UPTURNED_INDEX';
 
 /**
  * Unified card шеуь
@@ -37,11 +38,13 @@ class CardListState {
    * @param {number} [index] - Index of the list (for piles and foundations)
    * @param {number} [upturnedIndex] - Index of the first upturned card in the list
    */
-  constructor(type, cards, index, upturnedIndex) {
+  constructor(type, cards, index, upturnedIndex = null) {
     this.type = type;
     this.cards = cards;
     this.index = index;
-    this.upturnedIndex = upturnedIndex || cards.length;
+    this.upturnedIndex = upturnedIndex !== null
+      ? upturnedIndex
+      : cards.length;
   }
 }
 
@@ -76,7 +79,16 @@ export default {
       state.stock = _.clone(stock);
       state.piles = _.clone(piles);
       state.foundations = [];
-    }
+    },
+
+    /**
+     * Set index of upturned card
+     * @param {Object} state 
+     * @param {string, number} payload
+     */
+    [MUTATION_SET_UPTURNED_INDEX](state, { cardType, index }) {
+      state[cardType].upturnedIndex = index;
+    },
   },
 
   actions: {
@@ -84,7 +96,7 @@ export default {
      * Generate new game state
      * @param {Object} context
      */
-    GenerateInitialState(context) {
+    generateInitialState(context) {
       // Generate shuffled deck
       let deck = _.shuffle(_.times(SUITS.length * RANKS.length, index => {
         let rank = RANKS[index % RANKS.length];
@@ -93,16 +105,23 @@ export default {
       }));
 
       // Take (and remove) piles from the deck
-      let piles = _.times(7, index => new CardListState('piles', deck.splice(0, index + 1), index));
+      let piles = _.times(7, index => new CardListState('piles', deck.splice(0, index + 1), index, index));
 
       // Stock is the rest cards of the deck
       let stock = new CardListState('stock', deck);
       
       // Set store state
-      context.commit(MUTATION_SET_INITIAL_STATE, {
-        stock,
-        piles
-      });
+      context.commit(MUTATION_SET_INITIAL_STATE, { stock, piles });
+    },
+
+    /**
+     * Set upturned card
+     * @param {Object} context 
+     * @param {string, number} payload
+     */
+    setUpturnedCardIndex(context, { cardType, index }) {
+      // Set store state
+      context.commit(MUTATION_SET_UPTURNED_INDEX, { cardType, index });
     },
   },
 }

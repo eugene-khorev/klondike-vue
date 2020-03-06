@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Stock</h1>
+    <h1>List</h1>
     <div class="cards">
       <card
         v-for="(n, index) in cardCount"
@@ -18,8 +18,6 @@
 import { mapState } from "vuex";
 import Card from "@/components/CardItem";
 
-
-import "@/styles/Temp.scss";
 import "@/styles/Cards.scss";
 
 export default {
@@ -27,15 +25,19 @@ export default {
     Card
   },
 
-  props: ['type'],
+  props: ['type', 'index'],
 
   computed: {
     ...mapState({
       cardCount(state) {
-        return state.cards[this.type].cards.length
+        return this.index >= 0
+          ? state.cards[this.type][this.index].cards.length
+          : state.cards[this.type].cards.length;
       },
       upturnedIndex(state) {
-        return state.cards[this.type].upturnedIndex
+        return this.index >= 0
+          ? state.cards[this.type][this.index].upturnedIndex
+          : state.cards[this.type].upturnedIndex
       },
     }),
   },

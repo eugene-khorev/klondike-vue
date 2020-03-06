@@ -8,15 +8,19 @@
 import { mapState } from "vuex";
 
 export default {
-  props: ['type', 'index'],
+  props: ['type', 'index', 'listIndex'],
 
   computed: {
     ...mapState({
       card(state) {
-        return state.cards[this.type].cards[this.index];
+        return this.listIndex >= 0
+          ? state.cards[this.type][this.listIndex].cards[this.index]
+          : state.cards[this.type].cards[this.index];
       },
       isUpturned(state) {
-        return state.cards[this.type].upturnedIndex <= this.index;
+        return this.listIndex >= 0
+          ? state.cards[this.type][this.listIndex].upturnedIndex <= this.index
+          : state.cards[this.type].upturnedIndex <= this.index;
       },
     }),
 

@@ -1,21 +1,24 @@
 <template>
   <div class="about">
-    <CardList type="stock"/>
+    <StockArea/>
+    <PileArea/>
   </div>
 </template>
 
 <script>
 import { mapActions } from "vuex";
-import CardList from '@/components/CardList.vue'
+import StockArea from '@/components/StockArea.vue';
+import PileArea from '@/components/PileArea.vue';
 
 export default {
   components: {
-    CardList,
+    StockArea,
+    PileArea,
   },
 
   methods: {
     ...mapActions("cards", {
-      initGameState: "GenerateInitialState"
+      initGameState: "generateInitialState"
     }),
   },
 

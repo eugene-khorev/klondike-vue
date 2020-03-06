@@ -1,3 +1,8 @@
+// basic styles
+$card-width: 5em;
+$card-height: 7em;
+$card-margin: 0.3em;
+
 // basic colors
 $color-background: #f6f6f6;
 $color-downturned-background: #cc9;
@@ -17,9 +22,9 @@ $icon-hearts: "\2665  "; // cups are \2615, roses are \273F
 $icon-diamonds: "\2666  "; // coins are \2742, bells are \237E or \1F514
 $icon-spades: "\2660  "; // swords are \2020
 $icon-clubs: "\2663  "; // clubs are \2759, acorns are \2766
-$icon-k: "\265A  ";
-$icon-q: "\265B  ";
-$icon-j: "\2658  "; // yeah, the jack looks a little, um, horse-faced
+$icon-k: "K";
+$icon-q: "Q";
+$icon-j: "J";
 $icon-joker: "\263A  ";
 $icon-downturned: "\2748  "; // the icon on the back of the card
 
@@ -35,27 +40,27 @@ $suits: (
 $ranks: (
   "2": ("before": ("icons": 2, "width": 60%, "margin-top": -0.5em, "line-height": 2.6em), "after": ("icons": 0) ),
   "3": ("before": ("icons": 3, "width": 60%), "after": ("icons": 0)),
-  "4": ("before": ("icons": 4, "margin-top": -.5em, "line-height": 2.6em), "after": ("icons": 0)),
-  "5": ("before": ("icons": 4, "margin-top": -.5em, "line-height": 2.6em), "after": ("icons": 1, "line-height": 4em)),
+  "4": ("before": ("icons": 4, "margin-top": -0.5em, "line-height": 2.6em), "after": ("icons": 0)),
+  "5": ("before": ("icons": 4, "margin-top": -0.5em, "line-height": 2.6em), "after": ("icons": 1, "line-height": 4em)),
   "6":("before": ("icons": 6), "after": ("icons": 0)),
   "7": ("before": ("icons": 6), "after": ("icons": 1, "line-height": 2.7em)),
   "8": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 0)),
   "9": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 1, "line-height": 4em)),
   "10": ("before": ("icons": 8, "margin-top": 0.1em, "line-height": 1em), "after": ("icons": 2, "line-height": 2.05em)),
-  "j": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
-  "q": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
-  "k": ("before": ("icons": 1, "font-size": 3em, "line-height": 2em), "after": ("icons": 0)),
-  "a": ("before": ("icons": 1, "margin-top": 0, "font-size": 4em, "line-height": 1.5em), "after": ("icons": 0)),
+  "j": ("before": ("icons": 1, "margin-top": 0.1em, "font-size": 3em, "line-height": 2em), "after": ("icons": 0), "custom-icon": $icon-j),
+  "q": ("before": ("icons": 1, "margin-top": 0.1em, "font-size": 3em, "line-height": 2em), "after": ("icons": 0), "custom-icon": $icon-q),
+  "k": ("before": ("icons": 1, "margin-top": 0.1em, "font-size": 3em, "line-height": 2em), "after": ("icons": 0), "custom-icon": $icon-k),
+  "a": ("before": ("icons": 1, "margin-top": 0.1em, "font-size": 4em, "line-height": 1.5em), "after": ("icons": 0)),
 );
 
 .card {
   box-sizing: border-box;
-  display: inline-block;
+  display: block;
   position: relative;
   overflow: hidden;
-  width: 5em;
-  height: 7em;
-  margin: 0.3em;
+  width: $card-width;
+  height: $card-height;
+  margin: $card-margin;
   background-color: $color-background;
   font-family: Times, serif;
   font-weight: bold;
@@ -209,12 +214,16 @@ $ranks: (
 
     @each $suit, $params in $suits {
       &.card-#{$suit} {
-        $before-icon-count: map-get($props-before, "icons");
+        $icon: map-get($props, "custom-icon");
+        @if ($icon == null) {
+          $icon: map-get($params, "icon");
+        }
 
-        @if $before-icon-count>0 {
+        $before-icon-count: map-get($props-before, "icons");
+        @if $before-icon-count > 0 {
           $before-icons: "";
-          @while $before-icon-count>0 {
-            $before-icons: $before-icons + map-get($params, "icon");
+          @while $before-icon-count > 0 {
+            $before-icons: $before-icons + $icon;
             $before-icon-count: $before-icon-count - 1;
           }
 
@@ -224,10 +233,9 @@ $ranks: (
         }
 
         $after-icon-count: map-get($props-after, "icons");
-
-        @if $after-icon-count>0 {
+        @if $after-icon-count > 0 {
           $after-icons: "";
-          @while $after-icon-count>0 {
+          @while $after-icon-count > 0 {
             $after-icons: $after-icons + map-get($params, "icon");
             $after-icon-count: $after-icon-count - 1;
           }
