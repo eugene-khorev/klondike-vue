@@ -139,22 +139,10 @@ $ranks: (
       content: $icon-downturned;
       border: 0.15em dashed saturate($color-downturned-icon, 20%);
     }
-
-    p {
-      display: none;
-    }
   }
 
-  // optional accessibility text, e.g. for screen readers
-  p {
-    color: $color-background;
-    position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 1px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
+  &.card-placeholder {
+    opacity: 0.5;
   }
 }
 

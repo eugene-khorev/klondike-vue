@@ -1,0 +1,28 @@
+.card-grid {
+  .card-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+  }
+  
+  .card-column {
+    flex: 1;
+    flex-basis: 100%;
+  
+    &.one-card {
+      flex: 1;
+    }
+    
+    &.two-cards {
+      flex: 2;
+    }
+    
+    &.four-cards {
+      flex: 4;
+    }
+    
+    &.seven-cards {
+      flex: 7;
+    }
+  }  
+}

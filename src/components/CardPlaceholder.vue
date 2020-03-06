@@ -1,3 +1,3 @@
 <template>
-    <div class="card"></div>
+    <div class="card card-placeholder"></div>
 </template>
