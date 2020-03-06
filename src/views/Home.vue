@@ -1,17 +1,29 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="about">
+    <StockArea/>
+    <PileArea/>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import { mapActions } from "vuex";
+import StockArea from '@/components/StockArea.vue';
+import PileArea from '@/components/PileArea.vue';
 
 export default {
   components: {
-    HelloWorld
-  }
+    StockArea,
+    PileArea,
+  },
+
+  methods: {
+    ...mapActions("cards", {
+      initGameState: "generateInitialState"
+    }),
+  },
+
+  created() {
+    this.initGameState();
+  },
 }
 </script>
