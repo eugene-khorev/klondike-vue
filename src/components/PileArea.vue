@@ -1,6 +1,6 @@
 <template>
   <div class="pile-area">
-    <Pile v-for="(n, index) in pileCount" v-bind:key="index" v-bind:index="index" />
+    <Pile v-for="(pile, index) in piles" v-bind:key="index" v-bind:index="index" v-bind:upturnedIndex="pile.upturnedIndex" />
   </div>
 </template>
 
@@ -14,9 +14,7 @@ export default {
 
   computed: {
     ...mapState({
-      pileCount(state) {
-        return state.cards.piles.length;
-      }
+      piles: (state) => state.cards.piles,
     })
   }
 };

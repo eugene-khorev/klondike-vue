@@ -10,43 +10,6 @@ export const SUITS = ['spades', 'clubs', 'diamonds', 'hearts'];
  * Mutations
  */
 export const MUTATION_SET_INITIAL_STATE = 'MUTATION_SET_INITIAL_STATE';
-export const MUTATION_SET_UPTURNED_INDEX = 'MUTATION_SET_UPTURNED_INDEX';
-
-/**
- * Unified card шеуь
- */
-class CardState {
-  /**
-   * @constructor
-   * @param {strin} rank - Card rank
-   * @param {string} suit - Card suit
-   */
-  constructor(rank, suit) {
-    this.rank = rank;
-    this.suit = suit;
-  }
-}
-
-/**
- * Unified card list
- */
-class CardListState {
-  /**
-   * @constructor
-   * @param {string} type - List type (i.e. 'stock', 'piles', 'foundations')
-   * @param {Array.<CardState>} cards - Array of cards (e.g. { rank: 'Q', suit: 'spades' })
-   * @param {number} [index] - Index of the list (for piles and foundations)
-   * @param {number} [upturnedIndex] - Index of the first upturned card in the list
-   */
-  constructor(type, cards, index, upturnedIndex = null) {
-    this.type = type;
-    this.cards = cards;
-    this.index = index;
-    this.upturnedIndex = upturnedIndex !== null
-      ? upturnedIndex
-      : cards.length;
-  }
-}
 
 /**
  * Card store
@@ -55,17 +18,13 @@ export default {
   namespaced: true,
 
   state: {
-    stock: [],
-    piles: [],
-    foundations: [],
+    deck: [],
   },
 
   getters: {
-    /**
-     * @param {string} path - Path to specified card(s) [@see lodash _.get() method]
-     */
-    getCards: (state) => (path) => {
-      return _.get(state, path);
+    getPileCards: (state) => (pile) => {
+      let cards = state.deck.filter(card => card.pile === pile);
+      return cards;
     },
   },
 
@@ -75,19 +34,10 @@ export default {
      * @param {Object} state 
      * @param {Object.<CardListState, Array.CardListState>} payload
      */
-    [MUTATION_SET_INITIAL_STATE](state, { stock, piles }) {
-      state.stock = _.clone(stock);
-      state.piles = _.clone(piles);
-      state.foundations = [];
-    },
-
-    /**
-     * Set index of upturned card
-     * @param {Object} state 
-     * @param {string, number} payload
-     */
-    [MUTATION_SET_UPTURNED_INDEX](state, { cardType, index }) {
-      state[cardType].upturnedIndex = index;
+    [MUTATION_SET_INITIAL_STATE](state, { deck, piles, stock }) {
+      state.deck = deck;
+      state.piles = piles;
+      state.stock = stock;
     },
   },
 
@@ -99,29 +49,30 @@ export default {
     generateInitialState(context) {
       // Generate shuffled deck
       let deck = _.shuffle(_.times(SUITS.length * RANKS.length, index => {
-        let rank = RANKS[index % RANKS.length];
-        let suit = SUITS[_.floor(index / RANKS.length)];
-        return new CardState(rank, suit);
+        return {
+          foundation: null,
+          pile: null,
+          rank: RANKS[index % RANKS.length],
+          suit: SUITS[_.floor(index / RANKS.length)],
+        };
       }));
 
-      // Take (and remove) piles from the deck
-      let piles = _.times(7, index => new CardListState('piles', deck.splice(0, index + 1), index, index));
+      // Fill piles
+      let piles = [];
+      for (let pile = 0, card = 0; pile < 7; pile++) {
+        piles.push({ upturnedIndex: pile });
+        let counter = 0;
+        do {
+          deck[card++].pile = pile;
+        } while (counter++ < pile);
+      }
 
-      // Stock is the rest cards of the deck
-      let stock = new CardListState('stock', deck);
-      
       // Set store state
-      context.commit(MUTATION_SET_INITIAL_STATE, { stock, piles });
-    },
-
-    /**
-     * Set upturned card
-     * @param {Object} context 
-     * @param {string, number} payload
-     */
-    setUpturnedCardIndex(context, { cardType, index }) {
-      // Set store state
-      context.commit(MUTATION_SET_UPTURNED_INDEX, { cardType, index });
+      context.commit(MUTATION_SET_INITIAL_STATE, {
+        deck, 
+        piles,
+        stock: { cardIndex: 24 },
+      });
     },
   },
 }

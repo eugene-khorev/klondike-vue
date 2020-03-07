@@ -1,33 +1,33 @@
 <template>
   <div class="pile">
     <div class="cards">
-      <card v-for="(n, i) in cardCount" v-bind:key="i" v-bind:type="type" v-bind:index="i" v-bind:listIndex="index" />
-      <placeholder v-if="cardCount <= 0" />
+      <card
+        v-for="(card, index) in getPileCards(index)"
+        v-bind:key="index"
+        v-bind:index="index"
+        v-bind:card="card" 
+        v-bind:isUpturned="index >= upturnedIndex" 
+      />
+      <placeholder v-if="getPileCards(index).length <= 0" />
     </div>
   </div>
 </template>
 
 <script>
-import CardList from "@/components/CardList";
-import Card from "@/components/CardItem";
-import Placeholder from "@/components/CardPlaceholder";
+import { mapGetters } from "vuex";
+import Card from "@/components/Card";
+import Placeholder from "@/components/Placeholder";
 
 export default {
-  mixins: [CardList],
-
   components: {
     Card,
     Placeholder,
   },
 
-  props: {
-    type: {
-      type: String,
-      default: 'piles',
-    },
-    index: {
-      type: Number
-    },
+  props: ['index', 'upturnedIndex'],
+
+  computed: {
+    ...mapGetters('cards', ['getPileCards']),
   },
 }
 </script>
