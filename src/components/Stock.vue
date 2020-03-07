@@ -1,51 +1,50 @@
 <template>
   <div class="stock cards">
-    <div class="next-card" v-on:click="nextCard">
-      <card  v-if="upturnedIndex > 0" v-bind:type="type" v-bind:index="upturnedIndex - 1" />
+    <div class="next-card" v-on:click="switchToNextStockCard">
+      <card
+        v-if="getNextStockCard"
+        v-bind:card="getNextStockCard" 
+        v-bind:isUpturned="false"
+      />
       <placeholder v-else />
     </div>
     
     <div class="current-card">
-      <card v-if="upturnedIndex < cardCount" v-bind:type="type" v-bind:index="upturnedIndex" />
+      <card
+        v-if="getCurrentStockCard"
+        v-bind:card="getCurrentStockCard" 
+        v-bind:isUpturned="true"
+      />
       <placeholder v-else />
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
-import CardList from "@/components/CardList";
-import Card from "@/components/CardItem";
-import Placeholder from "@/components/CardPlaceholder";
+import Card from "@/components/Card";
+import Placeholder from "@/components/Placeholder";
 
 export default {
-  mixins: [CardList],
-
   components: {
     Card,
     Placeholder,
   },
 
-  props: {
-    type: {
-      type: String,
-      default: 'stock',
-    }
-  },
-
-  methods: {
-    ...mapActions('cards', {
-      setUpturnedIndex: 'setUpturnedCardIndex',
+  computed: {
+    ...mapState('cards', {
+      cardIndex: (state) => state.stock.cardIndex,
     }),
-    
-    nextCard() {
-      let index = this.upturnedIndex - 1;
-      if (index < 0) {
-        index = this.cardCount;
-      }
-      this.setUpturnedIndex({ cardType: this.type, index });
-    },
+    ...mapGetters('cards', [
+      'getStockCards',
+      'getCurrentStockCard',
+      'getNextStockCard',
+    ]),
+  },
+  
+  methods: {
+    ...mapActions('cards', ['switchToNextStockCard']),
   },
 };
 </script>

@@ -2,7 +2,7 @@
   <div class="home card-grid">
     <div class="card-row">
       <div class="card-column two-cards">
-        <!--StockArea/-->
+        <StockArea/>
       </div>
       <div class="card-column one-card"></div>
       <div class="card-column four-cards">
@@ -19,7 +19,7 @@
 
 <script>
 import { mapActions } from "vuex";
-// import StockArea from '@/components/StockArea.vue';
+import StockArea from '@/components/StockArea.vue';
 // import FoundationArea from '@/components/FoundationArea.vue';
 import PileArea from '@/components/PileArea.vue';
 import '@/styles/CardGrid.scss';
@@ -27,7 +27,7 @@ import '@/styles/Cards.scss';
 
 export default {
   components: {
-    // StockArea,
+    StockArea,
     // FoundationArea,
     PileArea,
   },
