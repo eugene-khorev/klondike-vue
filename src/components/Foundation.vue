@@ -1,36 +1,32 @@
 <template>
-  <div class="foundation cards">
-    <div class="top-card">
-      <card  v-if="upturnedIndex >= 0" v-bind:type="type" v-bind:index="upturnedIndex" />
-      <placeholder v-else />
+  <div class="foundation">
+    <div class="cards">
+      <Card 
+        v-if="getCurrentFoundationCard(index)"
+        v-bind:card="getCurrentFoundationCard(index)" 
+        v-bind:isUpturned="true"
+      />
+      <Placeholder v-else />
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapGetters } from "vuex";
 
-import CardList from "@/components/CardList";
-import Placeholder from '@/components/CardPlaceholder.vue';
+import Card from '@/components/Card.vue';
+import Placeholder from '@/components/Placeholder.vue';
 
 export default {
-  mixins: [CardList],
+  components: { Card, Placeholder },
 
-  components: { Placeholder },
-
-  props: {
-    type: {
-      type: String,
-      default: 'foundations',
-    }
-  },  
+  props: ['index', 'cards'],
 
   computed: {
-    ...mapState({
-      upturnedIndex() {
-        return this.cardCount > 0 ? this.cardCount : -1;
-      },
-    }),
+    ...mapGetters('cards', [
+      'getCurrentFoundationCardIndex',
+      'getCurrentFoundationCard',
+    ]),
   },
 }
 </script>

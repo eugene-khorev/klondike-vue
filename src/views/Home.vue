@@ -6,7 +6,7 @@
       </div>
       <div class="card-column one-card"></div>
       <div class="card-column four-cards">
-        <!--FoundationArea/-->
+        <FoundationArea/>
       </div>
     </div>
     <div class="card-row">
@@ -20,7 +20,7 @@
 <script>
 import { mapActions } from "vuex";
 import StockArea from '@/components/StockArea.vue';
-// import FoundationArea from '@/components/FoundationArea.vue';
+import FoundationArea from '@/components/FoundationArea.vue';
 import PileArea from '@/components/PileArea.vue';
 import '@/styles/CardGrid.scss';
 import '@/styles/Cards.scss';
@@ -28,7 +28,7 @@ import '@/styles/Cards.scss';
 export default {
   components: {
     StockArea,
-    // FoundationArea,
+    FoundationArea,
     PileArea,
   },
 

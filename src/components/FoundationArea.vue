@@ -1,17 +1,25 @@
 <template>
   <div class="foundation-area">
-    <Placeholder/>
-    <Placeholder/>
-    <Placeholder/>
-    <Placeholder/>
+    <Foundation v-bind:cards="getFoundationCards(0)" v-bind:index="0" />
+    <Foundation v-bind:cards="getFoundationCards(1)" v-bind:index="1" />
+    <Foundation v-bind:cards="getFoundationCards(2)" v-bind:index="2" />
+    <Foundation v-bind:cards="getFoundationCards(3)" v-bind:index="3" />
   </div>
 </template>
 
 <script>
-import Placeholder from '@/components/CardPlaceholder.vue';
+import { mapGetters } from "vuex";
+
+import Foundation from '@/components/Foundation.vue';
 import '@/styles/FoundationArea.scss';
 
 export default {
-  components: { Placeholder },
+  components: { Foundation },
+
+  computed: {
+    ...mapGetters('cards', [
+      'getFoundationCards',
+    ]),
+  },
 }
 </script>

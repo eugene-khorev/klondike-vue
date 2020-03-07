@@ -1,21 +1,23 @@
 <template>
-  <div class="stock cards">
-    <div class="next-card" v-on:click="switchToNextStockCard">
-      <card
-        v-if="getNextStockCard"
-        v-bind:card="getNextStockCard" 
-        v-bind:isUpturned="false"
-      />
-      <placeholder v-else />
-    </div>
-    
-    <div class="current-card">
-      <card
-        v-if="getCurrentStockCard"
-        v-bind:card="getCurrentStockCard" 
-        v-bind:isUpturned="true"
-      />
-      <placeholder v-else />
+  <div class="stock">
+    <div class="cards">
+      <div class="next-card" v-on:click="switchToNextStockCard">
+        <Card
+          v-if="getNextStockCard"
+          v-bind:card="getNextStockCard" 
+          v-bind:isUpturned="false"
+        />
+        <Placeholder v-else />
+      </div>
+      
+      <div class="current-card">
+        <Card
+          v-if="getCurrentStockCard"
+          v-bind:card="getCurrentStockCard" 
+          v-bind:isUpturned="true"
+        />
+        <Placeholder v-else />
+      </div>
     </div>
   </div>
 </template>
@@ -34,7 +36,7 @@ export default {
 
   computed: {
     ...mapState('cards', {
-      cardIndex: (state) => state.stock.cardIndex,
+      cardIndex: (state) => state.stockCardIndex,
     }),
     ...mapGetters('cards', [
       'getStockCards',

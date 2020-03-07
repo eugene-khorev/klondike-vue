@@ -9,6 +9,6 @@ import Stock from '@/components/Stock.vue';
 import "@/styles/StockArea.scss";
 
 export default {
-  components: {Stock},
+  components: { Stock },
 }
 </script>
