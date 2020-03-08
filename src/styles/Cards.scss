@@ -141,6 +141,10 @@ $ranks: (
     }
   }
 
+  &.card-dragged {
+    opacity: 0;
+  }
+
   &.card-placeholder {
     opacity: 0.5;
   }

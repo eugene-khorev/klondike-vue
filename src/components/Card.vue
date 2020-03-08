@@ -20,7 +20,7 @@ export default {
 
   computed: {
     classes() {
-      return this.isUpturned
+      let classes = this.isUpturned
         ? [
           'card',
           'card-' + this.card.rank,
@@ -30,13 +30,25 @@ export default {
           'card',
           'card-downturned',
         ];
+      
+      if (this.dragged) {
+        classes.push('card-dragged');
+      }
+
+      return classes;
     },
+  },
+
+  data() {
+    return {
+      dragged: false,
+    };
   },
 
   methods: {
     onDragStart(event) {
-      // event.target.style.opacity = 0.5;
       this.$emit('dragstart', event, this.index)
+      setTimeout(() => this.dragged = true, 1);
     },
     onDragEnter(event) {
       this.$emit('dragenter', event, this.index)
@@ -49,6 +61,7 @@ export default {
     },
     onDragEnd(event) {
       this.$emit('dragend', event, this.index)
+      this.dragged = false;
     },
   },
 }

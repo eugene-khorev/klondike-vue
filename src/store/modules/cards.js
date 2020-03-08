@@ -43,9 +43,12 @@ export default {
     getTopPileCard: (state) => (pile) => state.deck[state.pileCards[pile][state.pileCards[pile].length-1]],
     
     getStockCards: (state) => state.stockCards.map(card => state.deck[card]), 
+    getUpturnedStockCards: (state) => state.stockCardIndex === null ? [] : state.stockCards.filter((card, index) => index <= state.stockCardIndex).map(card => state.deck[card]), 
     getCurrentStockCard: (state) => state.deck[state.stockCards[state.stockCardIndex]],
     getNextStockCardIndex: (state) => {
-      let cardIndex = (state.stockCardIndex || 0) + 1;
+      let cardIndex = state.stockCardIndex !== null 
+        ? state.stockCardIndex + 1
+        : 0;
       if (cardIndex >= state.stockCards.length) {
         cardIndex = null;
       }

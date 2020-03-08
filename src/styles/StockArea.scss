@@ -1,6 +1,16 @@
 .stock-area {
-  .current-card,
-  .next-card {
-    display: inline-block;
+  .next-card,
+  .current-card {
+    // display: inline-block;
+    float: left;
+    
+    .card-wrapper {
+      display: grid;
+
+      .card {
+        grid-row-start: 1;
+        grid-column-start: 1;
+      }
+    }
   }
 }

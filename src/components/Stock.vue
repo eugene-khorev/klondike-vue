@@ -11,14 +11,17 @@
       </div>
       
       <div class="current-card">
-        <Card
-          v-if="getCurrentStockCard"
-          v-bind:card="getCurrentStockCard" 
-          v-bind:isUpturned="true"
-          v-on:dblclick="moveToFoundation"
-          v-on:dragstart="onDragStart"
-        />
-        <Placeholder v-else />
+        <div class="card-wrapper">
+          <Placeholder />
+          <Card
+            v-for="(card, index) in getUpturnedStockCards"
+            v-bind:key="index"
+            v-bind:card="card" 
+            v-bind:isUpturned="true"
+            v-on:dblclick="moveToFoundation"
+            v-on:dragstart="onDragStart"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -41,7 +44,7 @@ export default {
       cardIndex: (state) => state.stockCardIndex,
     }),
     ...mapGetters('cards', [
-      'getStockCards',
+      'getUpturnedStockCards',
       'getCurrentStockCard',
       'getNextStockCard',
     ]),

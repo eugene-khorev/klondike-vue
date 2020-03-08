@@ -3,8 +3,6 @@
   flex-wrap: nowrap;
 
   .pile {
-    grid-template-columns: 1fr;
-
     .cards {
       display: grid;
       
@@ -14,7 +12,10 @@
     
         @for $index from 0 through 20 {
           &:nth-child(#{$index - 1}) {
-            margin-top: $index * 2px;
+            margin-top: $index * 15px;
+          }
+          &.card-downturned:nth-child(#{$index - 1}) {
+            margin-top: $index * 15px;
           }
         }
       }
