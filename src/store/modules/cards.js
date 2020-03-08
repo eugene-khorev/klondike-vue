@@ -9,31 +9,80 @@ export const SUITS = ['spades', 'clubs', 'diamonds', 'hearts'];
 /**
  * Mutations
  */
-export const MUTATION_SET_INITIAL_STATE = 'MUTATION_SET_INITIAL_STATE';
+export const MUTATION_NEW_INITIAL_STATE = 'MUTATION_NEW_INITIAL_STATE';
+
 export const MUTATION_SET_CURRENT_STOCK_CARD = 'MUTATION_SET_CURRENT_STOCK_CARD';
 export const MUTATION_SET_PILE_UPTURNED_INDEX = 'MUTATION_SET_PILE_UPTURNED_INDEX';
-export const MUTATION_ADD_TO_FOUNDATION = 'MUTATION_ADD_TO_FOUNDATION';
-export const MUTATION_ADD_TO_PILE = 'MUTATION_ADD_TO_PILE';
-export const MUTATION_REMOVE_FROM_PILE = 'MUTATION_REMOVE_FROM_PILE';
-export const MUTATION_REMOVE_FROM_STOCK = 'MUTATION_REMOVE_FROM_STOCK';
+
+export const MUTATION_MOVE_TO_FOUNDATION_FROM_STOCK = 'MUTATION_MOVE_TO_FOUNDATION_FROM_STOCK';
+export const MUTATION_MOVE_TO_FOUNDATION_FROM_PILE = 'MUTATION_MOVE_TO_FOUNDATION_FROM_PILE';
+export const MUTATION_NOVE_TO_PILE_FROM_STOCK = 'MUTATION_NOVE_TO_PILE_FROM_STOCK';
+export const MUTATION_MOVE_TO_PILE_FROM_PILE = 'MUTATION_MOVE_TO_PILE_FROM_PILE';
+
+/**
+ * Last generated initial state
+ */
+let initialState;
+
+/**
+ * Generate and save new initial state
+ */
+export function generateNewInitialState() {
+  // Generate shuffled deck
+  let deck = Array.from(
+    { length: SUITS.length * RANKS.length },
+    (v, i) => [
+      Math.random(), 
+      {
+        rank: RANKS[i % RANKS.length],
+        suit: SUITS[Math.floor(i / RANKS.length)],
+      }
+    ]
+  ).sort((a, b) => a[0] - b[0]).map(a => a[1]);
+
+  // Fill piles
+  let cardCounter = 0;
+  let pileUpturnedIndexes = Array.from({ length: 7 }, (v, i) => i);
+  let pileCards = pileUpturnedIndexes.map((value, index) => {
+    let length = index + 1;
+    let cards = Array.from({ length }, (v, i) => i + cardCounter);
+    cardCounter += length;
+    return cards;
+  });
+
+  // Fill stock
+  let stockCards = Array.from(
+    { length: deck.length - cardCounter }, 
+    (v, i) => i + cardCounter
+  );
+
+  // Create empty foundationCards
+  let foundationCards = Array.from({ length: 4 }, () => []);
+
+  return {
+    deck,
+    pileCards,
+    pileUpturnedIndexes,
+    foundationCards,
+    stockCards,
+    stockCardIndex: null,
+  };
+}
+
+export function getInitialState() {
+  if (!initialState) {
+    initialState = generateNewInitialState();
+  }
+  return initialState;
+}
 
 /**
  * Card store
  */
-export default {
+export const store = {
   namespaced: true,
 
-  state: {
-    deck: [],
-    
-    pileCards: [],
-    pileUpturnedIndexes: [],
-    
-    foundationCards: [],
-
-    stockCards: [],
-    stockCardIndex: null,
-  },
+  state: getInitialState(),
 
   getters: {
     getPileCards: (state) => (pile) => state.pileCards[pile].map(card => state.deck[card]),
@@ -77,7 +126,7 @@ export default {
   },
 
   mutations: {
-    [MUTATION_SET_INITIAL_STATE] (state, { deck, pileCards, pileUpturnedIndexes, foundationCards, stockCards, stockCardIndex }) {
+    [MUTATION_NEW_INITIAL_STATE] (state, { deck, pileCards, pileUpturnedIndexes, foundationCards, stockCards, stockCardIndex }) {
       state.deck = deck;
       state.pileCards = pileCards;
       state.pileUpturnedIndexes = pileUpturnedIndexes;
@@ -94,66 +143,60 @@ export default {
       Vue.set(state.pileUpturnedIndexes, pile, index);
     },
 
-    [MUTATION_ADD_TO_FOUNDATION] (state, { foundation, cards }) {
-      Vue.set(state.foundationCards, foundation, [...state.foundationCards[foundation], cards]);
+    [MUTATION_MOVE_TO_FOUNDATION_FROM_STOCK] (state, { foundationIndex }) {
+      Vue.set(
+        state.foundationCards, 
+        foundationIndex,
+        [
+          ...state.foundationCards[foundationIndex], 
+          state.stockCards[state.stockCardIndex],
+        ]
+      );
+      state.stockCards.splice(state.stockCardIndex, 1);
+      state.stockCardIndex--;
     },
 
-    [MUTATION_ADD_TO_PILE] (state, { pile, cards }) {
-
-      Vue.set(state.pileCards, pile, [...state.pileCards[pile], cards]);
+    [MUTATION_MOVE_TO_FOUNDATION_FROM_PILE] (state, { foundationIndex, pileIndex, cardIndex }) {
+      Vue.set(
+        state.foundationCards, 
+        foundationIndex,
+        [
+          ...state.foundationCards[foundationIndex], 
+          state.pileCards[pileIndex][cardIndex]
+        ]
+      );
+      Vue.set(state.pileCards, pileIndex, state.pileCards[pileIndex].slice(0, cardIndex));
     },
 
-    [MUTATION_REMOVE_FROM_PILE] (state, { pile, card }) {
-      Vue.set(state.pileCards, pile, state.pileCards[pile].slice(0, card));
+    [MUTATION_NOVE_TO_PILE_FROM_STOCK] (state, { pileIndex }) {
+      Vue.set(
+        state.pileCards, 
+        pileIndex,
+        [
+          ...state.pileCards[pileIndex], 
+          state.stockCards[state.stockCardIndex]
+        ]
+      );
+      state.stockCards.splice(state.stockCardIndex, 1);
+      state.stockCardIndex--;
     },
 
-    [MUTATION_REMOVE_FROM_STOCK] (state, cardIndex) {
-      state.stockCards.splice(cardIndex, 1);
+    [MUTATION_MOVE_TO_PILE_FROM_PILE] (state, { srcPileIndex, dstPileIndex, cardIndex }) {
+      Vue.set(
+        state.pileCards, 
+        dstPileIndex,
+        [
+          ...state.pileCards[dstPileIndex],
+          ...state.pileCards[srcPileIndex].slice(cardIndex),
+        ]
+      );
+      Vue.set(state.pileCards, srcPileIndex, state.pileCards[srcPileIndex].slice(0, cardIndex));
     },
   },
 
   actions: {
     generateInitialState(context) {
-      // Generate shuffled deck
-      let deck = Array.from(
-        { length: SUITS.length * RANKS.length },
-        (v, i) => [
-          Math.random(), 
-          {
-            rank: RANKS[i % RANKS.length],
-            suit: SUITS[Math.floor(i / RANKS.length)],
-          }
-        ]
-      ).sort((a, b) => a[0] - b[0]).map(a => a[1]);
-
-      // Fill piles
-      let cardCounter = 0;
-      let pileUpturnedIndexes = Array.from({ length: 7 }, (v, i) => i);
-      let pileCards = pileUpturnedIndexes.map((value, index) => {
-        let length = index + 1;
-        let cards = Array.from({ length }, (v, i) => i + cardCounter);
-        cardCounter += length;
-        return cards;
-      });
-
-      // Fill stock
-      let stockCards = Array.from(
-        { length: deck.length - cardCounter }, 
-        (v, i) => i + cardCounter
-      );
-
-      // Create empty foundationCards
-      let foundationCards = Array.from({ length: 4 }, () => []);
-
-      // Set store state
-      context.commit(MUTATION_SET_INITIAL_STATE, {
-        deck,
-        pileCards,
-        pileUpturnedIndexes,
-        foundationCards,
-        stockCards,
-        stockCardIndex: null,
-      });
+      context.commit(MUTATION_NEW_INITIAL_STATE, generateNewInitialState());
     },
 
     switchToNextStockCard(context) {
@@ -169,26 +212,20 @@ export default {
         let card = context.getters.getPileCardByIndex(pileIndex, cardIndex);
         let foundationIndex = context.getters.getSuitableFoundationForCard(card);
         if (foundationIndex >= 0) {
-          context.commit(MUTATION_ADD_TO_FOUNDATION, {
-            foundation: foundationIndex,
-            cards: context.state.pileCards[pileIndex][cardIndex],
+          context.commit(MUTATION_MOVE_TO_FOUNDATION_FROM_PILE, {
+            foundationIndex,
+            pileIndex,
+            cardIndex,
           });
-          context.commit(MUTATION_REMOVE_FROM_PILE, { pile: pileIndex, card: cardIndex });
         }
       }
     },
 
     moveToFoundationFromStock(context) {
-      let cardIndex = context.state.stockCards[context.state.stockCardIndex];
       let card = context.getters.getCurrentStockCard;
       let foundationIndex = context.getters.getSuitableFoundationForCard(card);
       if (foundationIndex >= 0) {
-        context.commit(MUTATION_ADD_TO_FOUNDATION, {
-          foundation: foundationIndex,
-          cards: cardIndex,
-        });
-        context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
-        context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+        context.commit(MUTATION_MOVE_TO_FOUNDATION_FROM_STOCK, { foundationIndex });
       }
     },
 
@@ -204,21 +241,11 @@ export default {
             || ((stockCard.suit === 'spades' || stockCard.suit === 'clubs')
             && (pileCard.suit === 'diamonds' || pileCard.suit === 'hearts'))
           ) {
-            context.commit(MUTATION_ADD_TO_PILE, {
-              pile: pileIndex,
-              cards: [ context.state.stockCards[context.state.stockCardIndex] ],
-            });
-            context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
-            context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+            context.commit(MUTATION_NOVE_TO_PILE_FROM_STOCK, { pileIndex });
           }
         }
       } else if (stockCard.rank === 'k') {
-        context.commit(MUTATION_ADD_TO_PILE, {
-          pile: pileIndex,
-          cards: [ context.state.stockCards[context.state.stockCardIndex] ],
-        });
-        context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
-        context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+        context.commit(MUTATION_NOVE_TO_PILE_FROM_STOCK, { pileIndex });
       }
     },
 
@@ -234,25 +261,11 @@ export default {
             || ((srcCard.suit === 'spades' || srcCard.suit === 'clubs')
             && (dstCard.suit === 'diamonds' || dstCard.suit === 'hearts'))
           ) {
-            context.commit(MUTATION_ADD_TO_PILE, {
-              pile: dstPileIndex,
-              cards: context.state.pileCards[srcPileIndex].slice(cardIndex),
-            });
-            context.commit(MUTATION_REMOVE_FROM_PILE, {
-              pile: srcPileIndex,
-              card: cardIndex,
-            });
+            context.commit(MUTATION_MOVE_TO_PILE_FROM_PILE, { srcPileIndex, dstPileIndex, cardIndex });
           }
         }
       } else if (srcCard.rank === 'k') {
-        context.commit(MUTATION_ADD_TO_PILE, {
-          pile: dstPileIndex,
-          cards: context.state.pileCards[srcPileIndex].slice(cardIndex),
-        });
-        context.commit(MUTATION_REMOVE_FROM_PILE, {
-          pile: srcPileIndex,
-          card: cardIndex,
-        });
+        context.commit(MUTATION_MOVE_TO_PILE_FROM_PILE, { srcPileIndex, dstPileIndex, cardIndex });
       }
     },
   },

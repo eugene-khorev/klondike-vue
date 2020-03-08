@@ -1,43 +1,43 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div class="card-grid">
+      <div class="card-row">
+        <div class="card-column three-cards">
+          <StockArea/>
+        </div>
+        <div class="card-column four-cards">
+          <FoundationArea/>
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-column seven-cards">
+          <PileArea/>
+        </div>
+      </div>
     </div>
-    <keep-alive>
-      <router-view/>
-    </keep-alive>
   </div>
 </template>
 
 <style lang="scss">
 body {
   background: #406040	;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-}
-
-.home {
-  display: inline-block;
-}
-
-#nav {
-  padding: 30px;
-  display: none;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
+
+<script>
+import StockArea from '@/components/StockArea.vue';
+import FoundationArea from '@/components/FoundationArea.vue';
+import PileArea from '@/components/PileArea.vue';
+
+import '@/styles/CardGrid.scss';
+import '@/styles/Cards.scss';
+
+export default {
+  components: {
+    StockArea,
+    FoundationArea,
+    PileArea,
+  },
+}
+</script>

@@ -1,3 +1,5 @@
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 module.exports = {
   css: {
     sourceMap: true,
@@ -10,5 +12,6 @@ module.exports = {
   },
   configureWebpack: {
     devtool: 'source-map',
+    plugins: process.env.NODE_ENV === 'production' ? [new BundleAnalyzerPlugin()] : [],
   },
 }
