@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import * as immutable from 'object-path-immutable';
 
 /**
  * Card ranks and suits
@@ -96,15 +95,16 @@ export default {
     },
 
     [MUTATION_ADD_TO_FOUNDATION] (state, { foundation, cards }) {
-      state.foundationCards = immutable.push(state.foundationCards, foundation, cards);
+      Vue.set(state.foundationCards, foundation, [...state.foundationCards[foundation], cards]);
     },
 
     [MUTATION_ADD_TO_PILE] (state, { pile, cards }) {
-      state.pileCards = immutable.set(state.pileCards, pile, state.pileCards[pile].concat(cards));
+
+      Vue.set(state.pileCards, pile, [...state.pileCards[pile], cards]);
     },
 
     [MUTATION_REMOVE_FROM_PILE] (state, { pile, card }) {
-      state.pileCards = immutable.set(state.pileCards, [pile], state.pileCards[pile].slice(0, card));
+      Vue.set(state.pileCards, pile, state.pileCards[pile].slice(0, card));
     },
 
     [MUTATION_REMOVE_FROM_STOCK] (state, cardIndex) {
@@ -143,7 +143,7 @@ export default {
       );
 
       // Create empty foundationCards
-      let foundationCards = Array(4).fill([]);
+      let foundationCards = Array.from({ length: 4 }, () => []);
 
       // Set store state
       context.commit(MUTATION_SET_INITIAL_STATE, {
