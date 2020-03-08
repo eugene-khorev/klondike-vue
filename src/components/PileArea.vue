@@ -20,7 +20,7 @@ export default {
 
   computed: {
     ...mapState('cards', {
-      pileUpturnedIndexes: (state) => { return state.pileUpturnedIndexes },
+      pileUpturnedIndexes: (state) => state.pileUpturnedIndexes,
     }),
     ...mapGetters('cards', ['getPileCards']),
   }

@@ -1,14 +1,16 @@
 <template>
   <div class="foundation-area">
-    <Foundation v-bind:cards="getFoundationCards(0)" v-bind:index="0" />
-    <Foundation v-bind:cards="getFoundationCards(1)" v-bind:index="1" />
-    <Foundation v-bind:cards="getFoundationCards(2)" v-bind:index="2" />
-    <Foundation v-bind:cards="getFoundationCards(3)" v-bind:index="3" />
+    <Foundation
+      v-for="(cards, index) in foundations"
+      v-bind:key="index"
+      v-bind:cards="getFoundationCards(index)"
+      v-bind:index="index"
+    />
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
 
 import Foundation from '@/components/Foundation.vue';
 import '@/styles/FoundationArea.scss';
@@ -17,6 +19,9 @@ export default {
   components: { Foundation },
 
   computed: {
+    ...mapState('cards', {
+      foundations: (state) => state.foundationCards
+    }),
     ...mapGetters('cards', [
       'getFoundationCards',
     ]),

@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="classes" v-on:dblclick="$emit('dblclick', index)">
+  <div v-bind:class="classes" v-on:click="$emit('click', index)" v-on:dblclick="$emit('dblclick', index)">
     <span></span>
   </div>
 </template>

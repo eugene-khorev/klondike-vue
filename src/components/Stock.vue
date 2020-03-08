@@ -15,6 +15,7 @@
           v-if="getCurrentStockCard"
           v-bind:card="getCurrentStockCard" 
           v-bind:isUpturned="true"
+          v-on:dblclick="moveToFoundation"
         />
         <Placeholder v-else />
       </div>
@@ -46,7 +47,13 @@ export default {
   },
   
   methods: {
-    ...mapActions('cards', ['switchToNextStockCard']),
+    ...mapActions('cards', [
+      'switchToNextStockCard',
+      'moveToFoundationFromStock',
+    ]),
+    moveToFoundation() {
+      this.moveToFoundationFromStock();
+    },
   },
 };
 </script>
