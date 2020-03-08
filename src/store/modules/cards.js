@@ -15,6 +15,7 @@ export const MUTATION_SET_INITIAL_STATE = 'MUTATION_SET_INITIAL_STATE';
 export const MUTATION_SET_CURRENT_STOCK_CARD = 'MUTATION_SET_CURRENT_STOCK_CARD';
 export const MUTATION_SET_PILE_UPTURNED_INDEX = 'MUTATION_SET_PILE_UPTURNED_INDEX';
 export const MUTATION_ADD_TO_FOUNDATION = 'MUTATION_ADD_TO_FOUNDATION';
+export const MUTATION_ADD_TO_PILE = 'MUTATION_ADD_TO_PILE';
 export const MUTATION_REMOVE_FROM_PILE = 'MUTATION_REMOVE_FROM_PILE';
 export const MUTATION_REMOVE_FROM_STOCK = 'MUTATION_REMOVE_FROM_STOCK';
 
@@ -39,6 +40,7 @@ export default {
   getters: {
     getPileCards: (state) => (pile) => state.pileCards[pile].map(card => state.deck[card]),
     getPileCardByIndex: (state) => (pile, card) => state.deck[state.pileCards[pile][card]],
+    getTopPileCard: (state) => (pile) => state.deck[state.pileCards[pile][state.pileCards[pile].length-1]],
     
     getStockCards: (state) => state.stockCards.map(card => state.deck[card]), 
     getCurrentStockCard: (state) => state.deck[state.stockCards[state.stockCardIndex]],
@@ -54,15 +56,7 @@ export default {
     getFoundationCards: (state) => (foundation) => state.foundationCards[foundation].map(card => state.deck[card]),
     getCurrentFoundationCardIndex: (state) => (foundation) => state.foundationCards[foundation].length-1,
     getCurrentFoundationCard: (state) => (foundation) => state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]],
-    getAllCurrentFoundationCards: (state) => {
-      // debugger;
-      return state.foundationCards.map((cards, foundation) => {
-        // debugger;
-        // let res = getters.getCurrentFoundationCard(foundation);
-        let res = state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]];
-        return res;
-      });
-    },
+    getAllCurrentFoundationCards: (state) => state.foundationCards.map((cards, foundation) => state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]]),
   },
 
   mutations: {
@@ -84,7 +78,11 @@ export default {
     },
 
     [MUTATION_ADD_TO_FOUNDATION] (state, { foundation, card }) {
-      state.foundationCards = immutable.insert(state.foundationCards, foundation, card, state.foundationCards[foundation].length);
+      state.foundationCards = immutable.push(state.foundationCards, foundation, card);
+    },
+
+    [MUTATION_ADD_TO_PILE] (state, { pile, card }) {
+      state.pileCards = immutable.push(state.pileCards, pile, card);
     },
 
     [MUTATION_REMOVE_FROM_PILE] (state, { pile, card }) {
@@ -182,6 +180,28 @@ export default {
           context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
         }
       });
+    },
+
+    moveToPileFromStock(context, pileIndex) {
+      let stockCard = context.getters.getCurrentStockCard;
+      let pileCard = context.getters.getTopPileCard(pileIndex);
+      let lowerRankIndex = RANKS.indexOf(pileCard.rank) - 1;
+      if (stockCard.rank === RANKS[lowerRankIndex]) {
+        if (((pileCard.suit === 'spades' || pileCard.suit === 'clubs')
+          && (stockCard.suit === 'diamonds' || stockCard.suit === 'hearts'))
+          || ((stockCard.suit === 'spades' || stockCard.suit === 'clubs')
+          && (pileCard.suit === 'diamonds' || pileCard.suit === 'hearts'))
+        ) {
+          context.commit(MUTATION_ADD_TO_PILE, {
+            pile: pileIndex,
+            card: context.state.stockCards[context.state.stockCardIndex],
+          });
+          context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
+          context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+          console.log('move!');return;
+        }
+      }
+      console.log('oops!');
     },
   },
 }

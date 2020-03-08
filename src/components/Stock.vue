@@ -16,6 +16,7 @@
           v-bind:card="getCurrentStockCard" 
           v-bind:isUpturned="true"
           v-on:dblclick="moveToFoundation"
+          v-on:dragstart="onDragStart"
         />
         <Placeholder v-else />
       </div>
@@ -53,6 +54,13 @@ export default {
     ]),
     moveToFoundation() {
       this.moveToFoundationFromStock();
+    },
+    onDragStart(event) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', JSON.stringify({
+        source: 'stock',
+        card: this.getCurrentStockCard,
+      }));
     },
   },
 };

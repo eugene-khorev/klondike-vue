@@ -9,6 +9,9 @@
         v-bind:isUpturned="index >= upturnedIndex" 
         v-on:click="makeUpturned"
         v-on:dblclick="moveToFoundation"
+        v-on:dragenter="onDragEnter"
+        v-on:dragover="onDragOver"
+        v-on:drop="onDrop"
       />
       <Placeholder v-if="cards.length <= 0" />
     </div>
@@ -33,6 +36,7 @@ export default {
     ...mapActions('cards', [
       'makePileCardUpturned',
       'moveToFoundationFromPile',
+      'moveToPileFromStock',
     ]),
     makeUpturned(cardIndex) {
       if (cardIndex < this.upturnedIndex) {
@@ -43,6 +47,15 @@ export default {
       if (cardIndex >= this.upturnedIndex) {
         this.moveToFoundationFromPile({ pileIndex: this.index, cardIndex });
       }
+    },
+    onDragEnter(event) {
+      event.preventDefault();
+    },
+    onDragOver(event) {
+      event.preventDefault();
+    },
+    onDrop() {
+      this.moveToPileFromStock(this.index);
     },
   },
 }
