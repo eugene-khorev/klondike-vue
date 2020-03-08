@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import _ from 'lodash';
 import * as immutable from 'object-path-immutable';
 
 /**
@@ -65,7 +64,17 @@ export default {
     getFoundationCards: (state) => (foundation) => state.foundationCards[foundation].map(card => state.deck[card]),
     getCurrentFoundationCardIndex: (state) => (foundation) => state.foundationCards[foundation].length-1,
     getCurrentFoundationCard: (state) => (foundation) => state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]],
-    getAllCurrentFoundationCards: (state) => state.foundationCards.map((cards, foundation) => state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]]),
+    getSuitableFoundationForCard: (state) => (card)=> {
+      let lowerRankIndex = RANKS.indexOf(card.rank) - 1;
+      return state.foundationCards.findIndex((cards, foundation) => {
+        if (lowerRankIndex < 0) {
+          return cards.length === 0;
+        } else {
+          let lastCard  = state.deck[state.foundationCards[foundation][state.foundationCards[foundation].length-1]];
+          return lastCard.rank === RANKS[lowerRankIndex] && lastCard.suit === card.suit;
+        }
+      })
+    },
   },
 
   mutations: {
@@ -106,32 +115,35 @@ export default {
   actions: {
     generateInitialState(context) {
       // Generate shuffled deck
-      let deck = _.shuffle(_.times(SUITS.length * RANKS.length, index => {
-        return {
-          rank: RANKS[index % RANKS.length],
-          suit: SUITS[_.floor(index / RANKS.length)],
-        };
-      }));
+      let deck = Array.from(
+        { length: SUITS.length * RANKS.length },
+        (v, i) => [
+          Math.random(), 
+          {
+            rank: RANKS[i % RANKS.length],
+            suit: SUITS[Math.floor(i / RANKS.length)],
+          }
+        ]
+      ).sort((a, b) => a[0] - b[0]).map(a => a[1]);
 
       // Fill piles
-      let pileCards = [];
-      let pileUpturnedIndexes = [];
-      let card = 0;
-      for (let pile = 0; pile < 7; pile++) {
-        let counter = 0;
-        let cards = [];
-        do {
-          cards.push(card++);
-        } while (counter++ < pile);
-        pileCards.push(cards);
-        pileUpturnedIndexes.push(pile);
-      }
+      let cardCounter = 0;
+      let pileUpturnedIndexes = Array.from({ length: 7 }, (v, i) => i);
+      let pileCards = pileUpturnedIndexes.map((value, index) => {
+        let length = index + 1;
+        let cards = Array.from({ length }, (v, i) => i + cardCounter);
+        cardCounter += length;
+        return cards;
+      });
 
       // Fill stock
-      let stockCards = _.range(card, deck.length);
+      let stockCards = Array.from(
+        { length: deck.length - cardCounter }, 
+        (v, i) => i + cardCounter
+      );
 
       // Create empty foundationCards
-      let foundationCards = new Array(4).fill([]);
+      let foundationCards = Array(4).fill([]);
 
       // Set store state
       context.commit(MUTATION_SET_INITIAL_STATE, {
@@ -152,43 +164,32 @@ export default {
       context.commit(MUTATION_SET_PILE_UPTURNED_INDEX, { pile: pileIndex, index: cardIndex });
     },
 
-    findFoundationForCard(context, card) {
-      let lowerRankIndex = RANKS.indexOf(card.rank) - 1;
-      if (lowerRankIndex >= 0) {
-        return _.findLastIndex(context.getters.getAllCurrentFoundationCards, { rank: RANKS[lowerRankIndex], suit: card.suit });
-      } else {
-        return _.findLastIndex(context.state.foundationCards, { length: 0 });
-      }
-    },
-
     moveToFoundationFromPile(context, { pileIndex, cardIndex }) {
       if (cardIndex >= context.state.pileUpturnedIndexes[pileIndex]) {
         let card = context.getters.getPileCardByIndex(pileIndex, cardIndex);
-         context.dispatch('findFoundationForCard', card).then((foundationIndex) => {
-          if (foundationIndex >= 0) {
-            context.commit(MUTATION_ADD_TO_FOUNDATION, {
-              foundation: foundationIndex,
-              cards: context.state.pileCards[pileIndex][cardIndex],
-            });
-            context.commit(MUTATION_REMOVE_FROM_PILE, { pile: pileIndex, card: cardIndex });
-          }
-        });
+        let foundationIndex = context.getters.getSuitableFoundationForCard(card);
+        if (foundationIndex >= 0) {
+          context.commit(MUTATION_ADD_TO_FOUNDATION, {
+            foundation: foundationIndex,
+            cards: context.state.pileCards[pileIndex][cardIndex],
+          });
+          context.commit(MUTATION_REMOVE_FROM_PILE, { pile: pileIndex, card: cardIndex });
+        }
       }
     },
 
     moveToFoundationFromStock(context) {
       let cardIndex = context.state.stockCards[context.state.stockCardIndex];
       let card = context.getters.getCurrentStockCard;
-      context.dispatch('findFoundationForCard', card).then((foundationIndex) => {
-        if (foundationIndex >= 0) {
-          context.commit(MUTATION_ADD_TO_FOUNDATION, {
-            foundation: foundationIndex,
-            cards: cardIndex,
-          });
-          context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
-          context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
-        }
-      });
+      let foundationIndex = context.getters.getSuitableFoundationForCard(card);
+      if (foundationIndex >= 0) {
+        context.commit(MUTATION_ADD_TO_FOUNDATION, {
+          foundation: foundationIndex,
+          cards: cardIndex,
+        });
+        context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
+        context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+      }
     },
 
     moveToPileFromStock(context, pileIndex) {

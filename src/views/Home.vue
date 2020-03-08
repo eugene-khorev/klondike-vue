@@ -1,10 +1,10 @@
 <template>
   <div class="home card-grid">
     <div class="card-row">
-      <div class="card-column two-cards">
+      <div class="card-column three-cards">
         <StockArea/>
       </div>
-      <div class="card-column one-card"></div>
+      <!-- <div class="card-column one-card"></div> -->
       <div class="card-column four-cards">
         <FoundationArea/>
       </div>

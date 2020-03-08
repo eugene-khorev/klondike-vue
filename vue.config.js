@@ -5,7 +5,10 @@ module.exports = {
   devServer: {
     overlay: {
       warnings: true,
-      errors: true
-    }
+      errors: true,
+    },
+  },
+  configureWebpack: {
+    devtool: 'source-map',
   },
 }
