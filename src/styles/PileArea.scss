@@ -1,8 +1,12 @@
+@import 'Cards';
+
 .pile-area {
   display: flex;
   flex-wrap: nowrap;
 
   .pile {
+    padding-bottom: $card-height + $card-margin * 2;
+    
     .cards {
       display: grid;
       
@@ -10,12 +14,9 @@
         grid-row-start: 1;
         grid-column-start: 1;
     
-        @for $index from 0 through 20 {
-          &:nth-child(#{$index - 1}) {
-            margin-top: $index * 15px;
-          }
-          &.card-downturned:nth-child(#{$index - 1}) {
-            margin-top: $index * 15px;
+        @for $index from 2 through 20 {
+          &:nth-child(#{$index}) {
+            margin-top: $card-margin + (($index - 2) * 0.9em);
           }
         }
       }

@@ -1,6 +1,15 @@
 <template>
-  <div class="pile">
+  <div class="pile"
+    v-on:dragenter.prevent="onDragEnter"
+    v-on:dragover.prevent="onDragOver"
+    v-on:drop="onDrop"
+    >
     <div class="cards">
+      <Placeholder
+        v-on:dragenter="onDragEnter"
+        v-on:dragover="onDragOver"
+        v-on:drop="onDrop"
+      />
       <Card
         v-for="(card, index) in cards"
         v-bind:key="index"
@@ -11,9 +20,9 @@
         v-on:dblclick="moveToFoundation"
         v-on:dragenter="onDragEnter"
         v-on:dragover="onDragOver"
+        v-on:dragstart="onDragStart"
         v-on:drop="onDrop"
       />
-      <Placeholder v-if="cards.length <= 0" />
     </div>
   </div>
 </template>
@@ -37,6 +46,7 @@ export default {
       'makePileCardUpturned',
       'moveToFoundationFromPile',
       'moveToPileFromStock',
+      'moveToPileFromPile',
     ]),
     makeUpturned(cardIndex) {
       if (cardIndex < this.upturnedIndex) {
@@ -48,14 +58,39 @@ export default {
         this.moveToFoundationFromPile({ pileIndex: this.index, cardIndex });
       }
     },
+    onDragStart(event, cardIndex) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', JSON.stringify({
+        source: 'pile',
+        pileIndex: this.index,
+        cardIndex,
+      }));
+    },
     onDragEnter(event) {
-      event.preventDefault();
+      this.$emit('dragenter', event, this.index)
     },
     onDragOver(event) {
-      event.preventDefault();
+      this.$emit('dragover', event, this.index)
     },
     onDrop() {
-      this.moveToPileFromStock(this.index);
+      try {
+        let data = JSON.parse(event.dataTransfer.getData('text/plain'));
+        switch (data.source) {
+          case 'stock':
+            this.moveToPileFromStock(this.index);
+            break;
+
+          case 'pile':
+            this.moveToPileFromPile({
+              cardIndex: data.cardIndex,
+              srcPileIndex: data.pileIndex,
+              dstPileIndex: this.index,
+            });
+            break;
+        }
+      } catch (e) {
+        // Invalid source
+      }
     },
   },
 }

@@ -62,7 +62,6 @@ export default {
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', JSON.stringify({
         source: 'stock',
-        card: this.getCurrentStockCard,
       }));
     },
   },

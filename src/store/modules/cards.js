@@ -43,7 +43,13 @@ export default {
     getTopPileCard: (state) => (pile) => state.deck[state.pileCards[pile][state.pileCards[pile].length-1]],
     
     getStockCards: (state) => state.stockCards.map(card => state.deck[card]), 
-    getUpturnedStockCards: (state) => state.stockCardIndex === null ? [] : state.stockCards.filter((card, index) => index <= state.stockCardIndex).map(card => state.deck[card]), 
+    getUpturnedStockCards: (state) => {
+      return state.stockCardIndex !== null 
+        ? state.stockCards
+            .filter((card, index) => index <= state.stockCardIndex)
+            .map(card => state.deck[card])
+        : [];
+    },
     getCurrentStockCard: (state) => state.deck[state.stockCards[state.stockCardIndex]],
     getNextStockCardIndex: (state) => {
       let cardIndex = state.stockCardIndex !== null 
@@ -80,16 +86,16 @@ export default {
       Vue.set(state.pileUpturnedIndexes, pile, index);
     },
 
-    [MUTATION_ADD_TO_FOUNDATION] (state, { foundation, card }) {
-      state.foundationCards = immutable.push(state.foundationCards, foundation, card);
+    [MUTATION_ADD_TO_FOUNDATION] (state, { foundation, cards }) {
+      state.foundationCards = immutable.push(state.foundationCards, foundation, cards);
     },
 
-    [MUTATION_ADD_TO_PILE] (state, { pile, card }) {
-      state.pileCards = immutable.push(state.pileCards, pile, card);
+    [MUTATION_ADD_TO_PILE] (state, { pile, cards }) {
+      state.pileCards = immutable.set(state.pileCards, pile, state.pileCards[pile].concat(cards));
     },
 
     [MUTATION_REMOVE_FROM_PILE] (state, { pile, card }) {
-      state.pileCards = immutable.del(state.pileCards, [pile, card]);
+      state.pileCards = immutable.set(state.pileCards, [pile], state.pileCards[pile].slice(0, card));
     },
 
     [MUTATION_REMOVE_FROM_STOCK] (state, cardIndex) {
@@ -162,7 +168,7 @@ export default {
           if (foundationIndex >= 0) {
             context.commit(MUTATION_ADD_TO_FOUNDATION, {
               foundation: foundationIndex,
-              card: context.state.pileCards[pileIndex][cardIndex],
+              cards: context.state.pileCards[pileIndex][cardIndex],
             });
             context.commit(MUTATION_REMOVE_FROM_PILE, { pile: pileIndex, card: cardIndex });
           }
@@ -177,7 +183,7 @@ export default {
         if (foundationIndex >= 0) {
           context.commit(MUTATION_ADD_TO_FOUNDATION, {
             foundation: foundationIndex,
-            card: cardIndex,
+            cards: cardIndex,
           });
           context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
           context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
@@ -188,23 +194,65 @@ export default {
     moveToPileFromStock(context, pileIndex) {
       let stockCard = context.getters.getCurrentStockCard;
       let pileCard = context.getters.getTopPileCard(pileIndex);
-      let lowerRankIndex = RANKS.indexOf(pileCard.rank) - 1;
-      if (stockCard.rank === RANKS[lowerRankIndex]) {
-        if (((pileCard.suit === 'spades' || pileCard.suit === 'clubs')
-          && (stockCard.suit === 'diamonds' || stockCard.suit === 'hearts'))
-          || ((stockCard.suit === 'spades' || stockCard.suit === 'clubs')
-          && (pileCard.suit === 'diamonds' || pileCard.suit === 'hearts'))
-        ) {
-          context.commit(MUTATION_ADD_TO_PILE, {
-            pile: pileIndex,
-            card: context.state.stockCards[context.state.stockCardIndex],
-          });
-          context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
-          context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
-          console.log('move!');return;
+
+      if (pileCard) {
+        let lowerRankIndex = RANKS.indexOf(pileCard.rank) - 1;
+        if (stockCard.rank === RANKS[lowerRankIndex]) {
+          if (((pileCard.suit === 'spades' || pileCard.suit === 'clubs')
+            && (stockCard.suit === 'diamonds' || stockCard.suit === 'hearts'))
+            || ((stockCard.suit === 'spades' || stockCard.suit === 'clubs')
+            && (pileCard.suit === 'diamonds' || pileCard.suit === 'hearts'))
+          ) {
+            context.commit(MUTATION_ADD_TO_PILE, {
+              pile: pileIndex,
+              cards: [ context.state.stockCards[context.state.stockCardIndex] ],
+            });
+            context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
+            context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
+          }
         }
+      } else if (stockCard.rank === 'k') {
+        context.commit(MUTATION_ADD_TO_PILE, {
+          pile: pileIndex,
+          cards: [ context.state.stockCards[context.state.stockCardIndex] ],
+        });
+        context.commit(MUTATION_REMOVE_FROM_STOCK, context.state.stockCardIndex);
+        context.commit(MUTATION_SET_CURRENT_STOCK_CARD, context.state.stockCardIndex-1);
       }
-      console.log('oops!');
+    },
+
+    moveToPileFromPile(context, { cardIndex, srcPileIndex, dstPileIndex } ) {
+      let srcCard = context.getters.getPileCardByIndex(srcPileIndex, cardIndex);
+      let dstCard = context.getters.getTopPileCard(dstPileIndex);
+
+      if (dstCard) {
+        let lowerRankIndex = RANKS.indexOf(dstCard.rank) - 1;
+        if (srcCard.rank === RANKS[lowerRankIndex]) {
+          if (((dstCard.suit === 'spades' || dstCard.suit === 'clubs')
+            && (srcCard.suit === 'diamonds' || srcCard.suit === 'hearts'))
+            || ((srcCard.suit === 'spades' || srcCard.suit === 'clubs')
+            && (dstCard.suit === 'diamonds' || dstCard.suit === 'hearts'))
+          ) {
+            context.commit(MUTATION_ADD_TO_PILE, {
+              pile: dstPileIndex,
+              cards: context.state.pileCards[srcPileIndex].slice(cardIndex),
+            });
+            context.commit(MUTATION_REMOVE_FROM_PILE, {
+              pile: srcPileIndex,
+              card: cardIndex,
+            });
+          }
+        }
+      } else if (srcCard.rank === 'k') {
+        context.commit(MUTATION_ADD_TO_PILE, {
+          pile: dstPileIndex,
+          cards: context.state.pileCards[srcPileIndex].slice(cardIndex),
+        });
+        context.commit(MUTATION_REMOVE_FROM_PILE, {
+          pile: srcPileIndex,
+          card: cardIndex,
+        });
+      }
     },
   },
 }

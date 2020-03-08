@@ -5,8 +5,8 @@
     v-on:click="$emit('click', index)"
     v-on:dblclick="$emit('dblclick', index)"
     v-on:dragstart="onDragStart"
-    v-on:dragenter ="onDragEnter"
-    v-on:dragover  ="onDragOver"
+    v-on:dragenter.prevent="onDragEnter"
+    v-on:dragover.prevent="onDragOver"
     v-on:drop="onDrop"
     v-on:dragend="onDragEnd"
     >
@@ -20,22 +20,24 @@ export default {
 
   computed: {
     classes() {
-      let classes = this.isUpturned
-        ? [
-          'card',
-          'card-' + this.card.rank,
-          'card-' + this.card.suit,
-        ]
-        : [
-          'card',
-          'card-downturned',
-        ];
-      
-      if (this.dragged) {
-        classes.push('card-dragged');
+      if (this.card) {
+        let classes = this.isUpturned
+          ? [
+            'card',
+            'card-' + this.card.rank,
+            'card-' + this.card.suit,
+          ]
+          : [
+            'card',
+            'card-downturned',
+          ];
+        
+        if (this.dragged) {
+          classes.push('card-dragged');
+        }
+        return classes;
       }
-
-      return classes;
+      return null;
     },
   },
 
