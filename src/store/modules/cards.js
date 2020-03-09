@@ -9,7 +9,7 @@ export const SUITS = ['spades', 'clubs', 'diamonds', 'hearts'];
 /**
  * Mutations
  */
-export const MUTATION_NEW_INITIAL_STATE = 'MUTATION_NEW_INITIAL_STATE';
+export const MUTATION_SET_INITIAL_STATE = 'MUTATION_SET_INITIAL_STATE';
 
 export const MUTATION_SET_CURRENT_STOCK_CARD = 'MUTATION_SET_CURRENT_STOCK_CARD';
 export const MUTATION_SET_PILE_UPTURNED_INDEX = 'MUTATION_SET_PILE_UPTURNED_INDEX';
@@ -126,7 +126,7 @@ export const store = {
   },
 
   mutations: {
-    [MUTATION_NEW_INITIAL_STATE] (state, { deck, pileCards, pileUpturnedIndexes, foundationCards, stockCards, stockCardIndex }) {
+    [MUTATION_SET_INITIAL_STATE] (state, { deck, pileCards, pileUpturnedIndexes, foundationCards, stockCards, stockCardIndex }) {
       state.deck = deck;
       state.pileCards = pileCards;
       state.pileUpturnedIndexes = pileUpturnedIndexes;
@@ -196,7 +196,8 @@ export const store = {
 
   actions: {
     generateInitialState(context) {
-      context.commit(MUTATION_NEW_INITIAL_STATE, generateNewInitialState());
+      initialState = null;
+      context.commit(MUTATION_SET_INITIAL_STATE, getInitialState());
     },
 
     switchToNextStockCard(context) {

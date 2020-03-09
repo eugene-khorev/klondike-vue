@@ -15,6 +15,10 @@
         </div>
       </div>
     </div>
+
+    <div class="buttons">
+      <button v-on:click="generateNewGame">New game</button>
+    </div>
   </div>
 </template>
 
@@ -26,6 +30,8 @@ body {
 </style>
 
 <script>
+import { mapActions } from 'vuex';
+
 import StockArea from '@/components/StockArea.vue';
 import FoundationArea from '@/components/FoundationArea.vue';
 import PileArea from '@/components/PileArea.vue';
@@ -38,6 +44,12 @@ export default {
     StockArea,
     FoundationArea,
     PileArea,
+  },
+
+  methods: {
+    ...mapActions('cards', {
+      generateNewGame: 'generateInitialState',
+    }),
   },
 }
 </script>
