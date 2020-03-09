@@ -5,7 +5,7 @@
         <h1>Klondike</h1>
 
         <button v-on:click.prevent="undoAction">Undo</button>
-        <button v-on:click.prevent="newGame">New game</button>
+        <button v-on:click.prevent="newGame">New</button>
       </div>
 
       <div class="card-grid">
@@ -37,8 +37,8 @@ body {
   display: inline-block;
 }
 #nav {
-  margin: 5px 0 0;
-  padding: 0.3em;
+  margin: 0.3em 0 0.5em;
+  padding: 0.3em 0.4em;
   background: #204020;
 
   h1 {
@@ -58,11 +58,17 @@ body {
 
   button {
     display: block;
-    padding: 5px 10px;
+    width: 5em;
+    padding: 0.3em 0.5em;
     font-size: 0.8em;
     background: #609060;
     color: #102010;
-    border: solid 1px #204020;
+    border: solid 0.1em #030;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
 
     &:first-of-type {
       float: left;
