@@ -20,11 +20,6 @@ export const MUTATION_NOVE_TO_PILE_FROM_STOCK = 'MUTATION_NOVE_TO_PILE_FROM_STOC
 export const MUTATION_MOVE_TO_PILE_FROM_PILE = 'MUTATION_MOVE_TO_PILE_FROM_PILE';
 
 /**
- * Last generated initial state
- */
-let initialState;
-
-/**
  * Generate and save new initial state
  */
 export function generateNewInitialState() {
@@ -70,10 +65,18 @@ export function generateNewInitialState() {
 }
 
 export function getInitialState() {
-  if (!initialState) {
-    initialState = generateNewInitialState();
+  let savedState;
+  try {
+    savedState = JSON.parse(localStorage.getItem('vuex'));
+  } catch(e) {
+    // Invalid JSON
   }
-  return initialState;
+
+  if (!savedState) {
+    savedState = [{ cards: generateNewInitialState() }];
+    localStorage.setItem('vuex', JSON.stringify(savedState));
+  }
+  return savedState[savedState.length-1].cards;
 }
 
 /**
@@ -196,8 +199,8 @@ export const store = {
 
   actions: {
     generateInitialState(context) {
-      initialState = null;
-      context.commit(MUTATION_SET_INITIAL_STATE, getInitialState());
+      localStorage.setItem('vuex', JSON.stringify([]));
+      context.commit(MUTATION_SET_INITIAL_STATE, generateNewInitialState());
     },
 
     switchToNextStockCard(context) {
@@ -267,6 +270,21 @@ export const store = {
         }
       } else if (srcCard.rank === 'k') {
         context.commit(MUTATION_MOVE_TO_PILE_FROM_PILE, { srcPileIndex, dstPileIndex, cardIndex });
+      }
+    },
+
+    undoLastState() {
+      let savedState;
+      try {
+        savedState = JSON.parse(localStorage.getItem('vuex'));
+        if (savedState.length > 1) {
+          savedState.pop();
+          let lastState = savedState[savedState.length-1];
+          this.replaceState(lastState);
+          localStorage.setItem('vuex', JSON.stringify(savedState));
+          }
+      } catch(e) {
+        // Invalid JSON
       }
     },
   },
