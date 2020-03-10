@@ -54,6 +54,7 @@ $ranks: (
   "a": ("before": ("icons": 1, "margin-top": 0.1em, "font-size": 4em, "line-height": 1.5em), "after": ("icons": 0)),
 );
 
+// basic card
 .card {
   box-sizing: border-box;
   display: block;
@@ -161,6 +162,7 @@ $ranks: (
   word-spacing: 0.4em
 }
 
+// suits colors and icons
 @each $suit, $params in $suits {
   .card-#{$suit} {
     color: map-get($params, "color");
@@ -171,6 +173,7 @@ $ranks: (
   }
 }
 
+// rank face patterns
 @each $rank, $props in $ranks {
   $props-before: map-get($props, "before");
   $props-after: map-get($props, "after");

@@ -67,7 +67,7 @@ body {
     cursor: pointer;
 
     &:hover {
-      color: #fff;
+      background: #bb7;
     }
 
     &:first-of-type {
@@ -82,7 +82,7 @@ body {
 </style>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 
 import StockArea from '@/components/StockArea.vue';
 import FoundationArea from '@/components/FoundationArea.vue';
@@ -98,18 +98,27 @@ export default {
     PileArea,
   },
 
+  created() {
+    let savedState = this.$getSavedStateFromStarage();
+    if (savedState.length < 1) {
+      this.$insertNewState({ cards: this.generateNewInitialState() }, true);
+    } else {
+      this.$applyState(savedState[savedState.length-1]);
+    }
+  },
+
   methods: {
-    ...mapActions('cards', {
-      generateNewGame: 'generateInitialState',
-      loadLastState: 'undoLastState',
-    }),
+    ...mapGetters('cards', [
+      'generateNewInitialState'
+    ]),
     undoAction(event) {
       event.target.blur();
-      this.loadLastState();
+      this.$undoLastState();
     },
     newGame(event) {
       event.target.blur();
-      this.generateNewGame();
+      this.$putSavedStateToStorage([]);
+      this.$insertNewState({ cards: this.generateNewInitialState() }, true);
     },
   },
 }
