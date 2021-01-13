@@ -1,5 +1,9 @@
 # klondike
 
+## Demo
+
+http://klondike.surge.sh
+
 ## Project setup
 ```
 npm install
