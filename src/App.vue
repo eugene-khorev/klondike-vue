@@ -98,27 +98,64 @@ export default {
     PileArea,
   },
 
-  created() {
-    let savedState = this.$getSavedStateFromStarage();
-    if (savedState.length < 1) {
-      this.$insertNewState({ cards: this.generateNewInitialState() }, true);
-    } else {
-      this.$applyState(savedState[savedState.length-1]);
+  computed: {
+    savedStateList: {
+      get() {
+        let savedStateList;
+        try {
+          savedStateList = JSON.parse(localStorage.getItem('vuex-state-list'));
+        } catch(e) { /* Invalid JSON*/ }
+        return savedStateList || [];
+      },
+      set(value) {
+        localStorage.setItem('vuex-state-list', JSON.stringify(value));
+        return value;
+      },
+    },
+
+    lastSavedState: {
+      get() {
+        return this.savedStateList[this.savedStateList.length - 1];
+      },
+      set(value) {
+        this.savedStateList = [...this.savedStateList, value];
+        return value;
+      },
+    },
+  },
+
+  beforeCreate() {
+    this.$store.subscribe((mutation, state) => {
+      this.lastSavedState = state;
+    });
+
+    if (!this.lastSavedState) {
+      this.lastSavedState = { cards: this.getNewInitialState() };
     }
+
+    this.$store.replaceState(this.lastSavedState);
   },
 
   methods: {
-    ...mapGetters('cards', [
-      'generateNewInitialState'
-    ]),
+    ...mapGetters('cards', {
+      getNewInitialState: 'getNewInitialState',
+    }),
+
+    undoLastState() {
+      if (this.savedStateList.length > 1) {
+        this.savedStateList.pop();
+        this.$store.replaceState(this.lastSavedState);
+      }
+    },
+
     undoAction(event) {
       event.target.blur();
-      this.$undoLastState();
+      this.undoLastState();
     },
+
     newGame(event) {
       event.target.blur();
-      this.$putSavedStateToStorage([]);
-      this.$insertNewState({ cards: this.generateNewInitialState() }, true);
+      this.savedStateList = [{ cards: this.getNewInitialState() }];
     },
   },
 }

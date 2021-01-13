@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import LocalStorageState from '@/plugins/local-storage-state';
 
 import cards from './modules/cards'
 
@@ -14,7 +13,5 @@ const store = new Vuex.Store({
     cards,
   },
 });
-
-Vue.use(LocalStorageState, { store });
 
 export default store;

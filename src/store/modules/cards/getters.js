@@ -59,7 +59,7 @@ const getSuitableFoundationForCard = (state, getters) => (card)=> {
   })
 }
 
-const generateNewInitialState = () => {
+const getNewInitialState = () => {
   // Generate shuffled deck
   let deck = Array.from(
     { length: SUITS.length * RANKS.length },
@@ -117,5 +117,5 @@ export default {
   getCurrentFoundationCardIndex,
   getCurrentFoundationCard,
   getSuitableFoundationForCard,
-  generateNewInitialState,
+  getNewInitialState,
 }
